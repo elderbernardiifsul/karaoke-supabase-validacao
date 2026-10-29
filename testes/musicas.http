@@ -1,0 +1,68 @@
+# testes/musicas.http — testes da API do karaokê (extensão REST Client do VS Code)
+# Cliquem em "Send Request" acima de cada requisição, NA ORDEM, com o servidor rodando.
+@baseUrl = http://localhost:3000
+
+### 1. Listar todas as músicas (espera 200)
+GET {{baseUrl}}/api/musicas
+
+### 2. Buscar música que não existe (espera 404)
+GET {{baseUrl}}/api/musicas/999999
+
+### 3. Cadastrar música de teste (espera 201)
+# @name criar
+POST {{baseUrl}}/api/musicas
+Content-Type: application/json
+
+{
+    "nome": "Música de teste",
+    "artista": "Artista de teste"
+}
+
+### 4. Buscar a música criada (espera 200)
+GET {{baseUrl}}/api/musicas/{{criar.response.body.$.id}}
+
+### 5. Cadastrar sem nome (espera 400)
+POST {{baseUrl}}/api/musicas
+Content-Type: application/json
+
+{
+    "nome": "",
+    "artista": "Artista de teste"
+}
+
+### 6. Editar a música criada (espera 200)
+PUT {{baseUrl}}/api/musicas/{{criar.response.body.$.id}}
+Content-Type: application/json
+
+{
+    "nome": "Música de teste (editada)",
+    "artista": "Artista editado"
+}
+
+### 7. Editar música que não existe (espera 404)
+PUT {{baseUrl}}/api/musicas/999999
+Content-Type: application/json
+
+{
+    "nome": "Não existe",
+    "artista": "Ninguém"
+}
+
+### 8. Acrescentar uma parte à música criada (espera 201)
+POST {{baseUrl}}/api/musicas/{{criar.response.body.$.id}}/partes
+Content-Type: application/json
+
+{
+    "letra": "Linha de teste.",
+    "tempoEspera": 1000,
+    "tag": "verso"
+}
+
+### 9. Remover a música criada, que agora tem uma parte (espera 200)
+DELETE {{baseUrl}}/api/musicas/{{criar.response.body.$.id}}
+
+### 10. Remover de novo (espera 404)
+DELETE {{baseUrl}}/api/musicas/{{criar.response.body.$.id}}
+
+### 11. Rota que não existe (espera 404)
+GET {{baseUrl}}/api/nada
